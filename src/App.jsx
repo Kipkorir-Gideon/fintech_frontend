@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'; // Add useState, useEffect
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -11,12 +12,23 @@ import Wallets from './pages/Wallets';
 import Payments from './pages/Payments';
 import Notifications from './pages/Notifications';
 
-function App() {
-  const isAuthenticated = !!localStorage.getItem('token'); // Simple auth check
+const App = () =>{
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token')); // Dynamic state
+
+  // Update isAuthenticated when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setIsAuthenticated(!!localStorage.getItem('token'));
+    };
+
+    window.addEventListener('storage', handleStorageChange); // Listen for storage changes
+    setIsAuthenticated(!!localStorage.getItem('token')); // Initial check
+    return () => window.removeEventListener('storage', handleStorageChange); // Cleanup
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
-      {isAuthenticated && <Navbar />}
+      {isAuthenticated && <Navbar setIsAuthenticated={setIsAuthenticated} />} {/* Pass setter */}
       <div className="flex flex-1 overflow-hidden">
         {isAuthenticated && <Sidebar />}
         <main className="flex-1 p-6 overflow-y-auto">
